@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { Client } from '../../../core/models/library.models';
+import type { LibraryUser } from '../../../core/models/library.models';
 
 export interface RowAction<T> {
   mode: 'details' | 'edit' | 'delete';
@@ -24,16 +24,16 @@ export interface RowAction<T> {
           </tr>
         </thead>
         <tbody class="divide-y divide-violet-100 bg-white/75">
-          @for (client of clients; track client.userId) {
+          @for (client of clients; track client.id) {
             <tr class="text-slate-700 transition hover:bg-violet-50/60">
-              <td class="px-4 py-3 text-slate-400">#{{ client.userId }}</td>
+              <td class="px-4 py-3 text-slate-400">#{{ client.id }}</td>
               <td class="px-4 py-3 font-semibold text-slate-900">{{ client.lastName }}</td>
               <td class="px-4 py-3">{{ client.firstName }}</td>
               <td class="px-4 py-3">{{ client.email }}</td>
               <td class="px-4 py-3">{{ client.contact }}</td>
               <td class="px-4 py-3">
-                <span [class]="client.status === 'Actif' ? 'rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 ring-1 ring-emerald-600/20 ring-inset' : 'rounded-full bg-rose-50 px-2.5 py-1 text-rose-700 ring-1 ring-rose-600/20 ring-inset'">
-                  {{ client.status }}
+                <span [class]="client.type === 'CLIENT' ? 'rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 ring-1 ring-emerald-600/20 ring-inset' : 'rounded-full bg-rose-50 px-2.5 py-1 text-rose-700 ring-1 ring-rose-600/20 ring-inset'">
+                  {{ client.type }}
                 </span>
               </td>
               <td class="px-4 py-3">
@@ -62,6 +62,6 @@ export interface RowAction<T> {
   `
 })
 export class UserTable {
-  @Input({ required: true }) clients: Client[] = [];
-  @Output() readonly action = new EventEmitter<RowAction<Client>>();
+  @Input({ required: true }) clients: LibraryUser[] = [];
+  @Output() readonly action = new EventEmitter<RowAction<LibraryUser>>();
 }

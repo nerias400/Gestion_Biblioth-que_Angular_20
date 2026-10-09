@@ -1,6 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import type { Book } from '../../../core/models/library.models';
+import type { Author, Book, Loan } from '../../../core/models/library.models';
 import type { RowAction } from './user-table';
+
+
 
 @Component({
   selector: 'app-book-table',
@@ -15,7 +17,7 @@ import type { RowAction } from './user-table';
             <th scope="col" class="px-5 py-3">Intitulé</th>
             <th scope="col" class="px-5 py-3">Auteur</th>
             <th scope="col" class="px-5 py-3">Description</th>
-            <th scope="col" class="px-5 py-3">Nombre</th>
+            
             <th scope="col" class="px-5 py-3">Nbr. pages</th>
             <th scope="col" class="px-5 py-3">Statut</th>
             <th scope="col" class="px-5 py-3">Actions</th>
@@ -27,24 +29,27 @@ import type { RowAction } from './user-table';
               <td class="px-4 py-3 text-slate-400">#{{ book.id }}</td>
               <td class="px-4 py-3">
                 @if (book.image) {
-                  <img [src]="" [alt]="'Couverture de ' + book.title" class="h-12 w-10 rounded object-cover" />
+                  <img [src]="" [alt]="'Couverture de ' + book.name" class="h-12 w-10 rounded object-cover" />
                 } @else {
                   <span class="flex h-12 w-10 items-center justify-center rounded-lg bg-violet-100 text-[10px] font-semibold text-violet-800">Livre</span>
                 }
               </td>
-              <td class="max-w-48 px-4 py-3 font-semibold text-slate-900">{{ book.title }}</td>
-              <td class="max-w-64 px-4 py-3 font-semibold text-slate-900">{{ book.author }}</td>
+              <td class="max-w-48 px-4 py-3 font-semibold text-slate-900">{{ book.name }}</td>
+              <td class="max-w-64 px-4 py-3 font-semibold text-slate-900">{{ authorName(book.authorId) }}</td>
               <td class="max-w-64 px-4 py-3">
                 <p class="line-clamp-2">{{ book.description }}</p>
               </td>
-              <td class="px-4 py-3">{{ book.quantity }}</td>
+              
 
               <td class="px-4 py-3">{{ book.pages }}</td>
               <td class="px-4 py-3">
-                <span [class]="book.status === 'Disponible' ? 'rounded-full bg-emerald-50 px-2.5 py-1 text-emerald-700 ring-1 ring-emerald-600/20 ring-inset' : 'rounded-full bg-rose-50 px-2.5 py-1 text-amber-700 ring-1 ring-inset'">
-                  {{ book.status }}
-                </span>
-              </td>
+                  <span
+                    [class]="bookStatus(book.id) === 'Disponible'
+                      ? 'rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700'
+                      : 'rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700'">
+                    {{ bookStatus(book.id) }}
+                  </span>
+                </td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-1.5">
                   <button type="button" (click)="action.emit({ mode: 'details', record: book })" class="rounded-lg border border-violet-200 bg-white px-2 py-1.5 text-[10px] font-bold text-violet-800 shadow-sm transition hover:bg-violet-50">Détails</button>
@@ -63,5 +68,20 @@ import type { RowAction } from './user-table';
 })
 export class BookTable {
   @Input({ required: true }) books: Book[] = [];
+  @Input() authors: Author[] = [];
+@Input() loans: Loan[] = [];
+
+authorName(authorId: number): string {
+  return this.authors.find(author => author.id === authorId)?.name
+    ?? `Auteur #${authorId}`;
+}
+
+bookStatus(bookId: number): 'Disponible' | 'Emprunté' {
+  const hasActiveLoan = this.loans.some(
+    loan => loan.bookId === bookId && loan.returnDate === null
+  );
+
+  return hasActiveLoan ? 'Emprunté' : 'Disponible';
+}
   @Output() readonly action = new EventEmitter<RowAction<Book>>();
 }

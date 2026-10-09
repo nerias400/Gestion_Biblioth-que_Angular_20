@@ -25,10 +25,10 @@ import type { RowAction } from './user-table';
               <td class="px-4 py-3 text-slate-400">#{{ loan.id }}</td>
               <td class="px-4 py-3 font-semibold text-slate-900">{{ clientName(loan.userId) }}</td>
               <td class="px-4 py-3">{{ bookTitle(loan.bookId) }}</td>
-              <td class="px-4 py-3">{{ loan.loanDate }}</td>
+              <td class="px-4 py-3">{{ loan.requestDate }}</td>
               <td class="px-4 py-3">{{ loan.returnDate }}</td>
               <td class="px-4 py-3">
-                <span [class]="statusClass(loan.status)">{{ loan.status }}</span>
+                <span [class]="statusClass(loanStatus(loan))">{{ loanStatus(loan) }}</span>
               </td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-1.5">
@@ -48,20 +48,38 @@ import type { RowAction } from './user-table';
 })
 export class LoanTable {
   @Input({ required: true }) loans: Loan[] = [];
-  @Input({ required: true }) clients: { userId: number; firstName: string; lastName: string }[] = [];
-  @Input({ required: true }) books: { id: number; title: string }[] = [];
+  @Input() clients: { id: number; firstName: string; lastName: string }[] = [];
+  @Input() books: { id: number; name: string }[] = [];
   @Output() readonly action = new EventEmitter<RowAction<Loan>>();
 
   clientName(userId: number): string {
-    const client = this.clients.find((item) => item.userId === userId);
-    return client ? `${client.firstName} ${client.lastName}` : `Utilisateur #${userId}`;
+  const client = this.clients.find(item => item.id === userId);
+  return client
+    ? `${client.firstName} ${client.lastName}`
+    : `Utilisateur #${userId}`;
+}
+
+bookTitle(bookId: number): string {
+  return this.books.find(item => item.id === bookId)?.name
+    ?? `Livre #${bookId}`;
+}
+
+  loanStatus(loan: Loan): 'En cours' | 'En retard' | 'Retourné' {
+    if (loan.returnDate !== null) {
+      return 'Retourné';
+    }
+
+    const today = new Date();
+    const todayDate = [
+      today.getFullYear(),
+      String(today.getMonth() + 1).padStart(2, '0'),
+      String(today.getDate()).padStart(2, '0')
+    ].join('-');
+
+    return todayDate > loan.endDate.slice(0, 10) ? 'En retard' : 'En cours';
   }
 
-  bookTitle(bookId: number): string {
-    return this.books.find((item) => item.id === bookId)?.title ?? `Livre #${bookId}`;
-  }
-
-  statusClass(status: Loan['status']): string {
+  statusClass(status: 'En cours' | 'En retard' | 'Retourné'): string {
     if (status === 'Retourné') {
       return 'rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600';
     }

@@ -23,7 +23,7 @@ import type { RowAction } from './user-table';
             <tr class="text-slate-700 transition hover:bg-violet-50/60">
               <td class="px-4 py-3 text-slate-400">#{{ author.id }}</td>
               <td class="px-4 py-3">{{ author.name }}</td>
-              <td class="px-4 py-3">{{ author.birthDate | date: 'dd/MM/yyyy' }}</td>
+              <td class="px-4 py-3">{{ author.birthdate | date: 'dd/MM/yyyy' }}</td>
               <td class="px-4 py-3">
                 <div class="flex items-center gap-1.5">
                   <button type="button" (click)="action.emit({ mode: 'edit', record: author })" class="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-[10px] font-bold text-slate-700 shadow-sm transition hover:border-violet-200 hover:bg-violet-50">Modifier</button>

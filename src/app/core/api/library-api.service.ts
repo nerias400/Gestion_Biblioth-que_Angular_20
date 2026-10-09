@@ -1,39 +1,70 @@
+
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../../../environments/environment';
-import type { Book, Client, Loan } from '../models/library.models';
 
-@Injectable({ providedIn: 'root' })
+import { environment } from '../../../environments/environment';
+
+import type {
+  Author,
+  AuthorInput,
+  Book,
+  BookInput,
+  LibraryUser,
+  UserInput,
+  Loan,
+  LoanInput
+} from '../models/library.models';
+
+@Injectable({
+  providedIn: 'root'
+})
 export class LibraryApiService {
+
   private readonly http = inject(HttpClient);
   private readonly baseUrl = environment.apiBaseUrl;
 
-  listClients(): Observable<Client[]> {
-    return this.http.get<Client[]>(this.endpoint('clients'));
+  // =========================
+  // AUTEURS
+  // =========================
+
+  listAuthors(): Observable<Author[]> {
+    return this.http.get<Author[]>(this.endpoint('authors'));
   }
 
-  createClient(client: Omit<Client, 'userId'>): Observable<Client> {
-    return this.http.post<Client>(this.endpoint('clients'), client);
+  getAuthor(id: number): Observable<Author> {
+    return this.http.get<Author>(this.endpoint('authors', id));
   }
 
-  updateClient(userId: number, client: Partial<Client>): Observable<Client> {
-    return this.http.put<Client>(this.endpoint('clients', userId), client);
+  createAuthor(author: AuthorInput): Observable<Author> {
+    return this.http.post<Author>(this.endpoint('authors'), author);
   }
 
-  deleteClient(userId: number): Observable<void> {
-    return this.http.delete<void>(this.endpoint('clients', userId));
+  updateAuthor(id: number, author: AuthorInput): Observable<Author> {
+    return this.http.put<Author>(this.endpoint('authors', id), author);
   }
+
+  deleteAuthor(id: number): Observable<void> {
+    return this.http.delete<void>(this.endpoint('authors', id));
+  }
+
+  // =========================
+  // LIVRES
+  // =========================
 
   listBooks(): Observable<Book[]> {
     return this.http.get<Book[]>(this.endpoint('books'));
   }
 
-  createBook(book: Omit<Book, 'id'>): Observable<Book> {
+  getBook(id: number): Observable<Book> {
+    return this.http.get<Book>(this.endpoint('books', id));
+  }
+
+  createBook(book: BookInput): Observable<Book> {
     return this.http.post<Book>(this.endpoint('books'), book);
   }
 
-  updateBook(id: number, book: Partial<Book>): Observable<Book> {
+  updateBook(id: number, book: BookInput): Observable<Book> {
     return this.http.put<Book>(this.endpoint('books', id), book);
   }
 
@@ -41,24 +72,74 @@ export class LibraryApiService {
     return this.http.delete<void>(this.endpoint('books', id));
   }
 
+  // =========================
+  // UTILISATEURS
+  // =========================
+
+  listUsers(): Observable<LibraryUser[]> {
+    return this.http.get<LibraryUser[]>(this.endpoint('users'));
+  }
+
+  getUser(id: number): Observable<LibraryUser> {
+    return this.http.get<LibraryUser>(this.endpoint('users', id));
+  }
+
+  createUser(user: UserInput): Observable<LibraryUser> {
+    return this.http.post<LibraryUser>(this.endpoint('users'), user);
+  }
+
+  updateUser(id: number, user: UserInput): Observable<LibraryUser> {
+    return this.http.put<LibraryUser>(this.endpoint('users', id), user);
+  }
+
+  deleteUser(id: number): Observable<void> {
+    return this.http.delete<void>(this.endpoint('users', id));
+  }
+
+  // =========================
+  // EMPRUNTS
+  // =========================
+
   listLoans(): Observable<Loan[]> {
     return this.http.get<Loan[]>(this.endpoint('loans'));
   }
 
-  createLoan(loan: Omit<Loan, 'id'>): Observable<Loan> {
+  getLoan(id: number): Observable<Loan> {
+    return this.http.get<Loan>(this.endpoint('loans', id));
+  }
+
+  createLoan(loan: LoanInput): Observable<Loan> {
     return this.http.post<Loan>(this.endpoint('loans'), loan);
   }
 
-  updateLoan(id: number, loan: Partial<Loan>): Observable<Loan> {
-    return this.http.put<Loan>(this.endpoint('loans', id), loan);
+  listLoansByUser(userId: number): Observable<Loan[]> {
+    return this.http.get<Loan[]>(
+      this.endpoint(`loans/user/${userId}`)
+    );
   }
 
-  deleteLoan(id: number): Observable<void> {
-    return this.http.delete<void>(this.endpoint('loans', id));
+  listLoansByBook(bookId: number): Observable<Loan[]> {
+    return this.http.get<Loan[]>(
+      this.endpoint(`loans/book/${bookId}`)
+    );
   }
 
-  private endpoint(resource: 'clients' | 'books' | 'loans', id?: number): string {
+  returnBook(loanId: number): Observable<Loan> {
+    return this.http.put<Loan>(
+      this.endpoint(`loans/${loanId}/return`),
+      {}
+    );
+  }
+
+  // =========================
+  // CONSTRUCTION DES URL
+  // =========================
+
+  private endpoint(resource: string, id?: number): string {
     const collectionUrl = `${this.baseUrl}/${resource}`;
-    return id === undefined ? collectionUrl : `${collectionUrl}/${id}`;
+
+    return id === undefined
+      ? collectionUrl
+      : `${collectionUrl}/${id}`;
   }
 }
