@@ -1,1 +1,127 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f3ff;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 10% 0%, rgb(196 181 253 / 58%), transparent 38%),
+    radial-gradient(ellipse at 100% 100%, rgb(221 214 254 / 72%), transparent 42%),
+    linear-gradient(135deg, #f5f3ff 0%, #ffffff 48%, #ede9fe 100%);
+}
+
+app-root,
+app-dashboard,
+app-login-form {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+@media (max-height: 620px) {
+  .dashboard-shell > header {
+    height: 52px;
+  }
+
+  .dashboard-content {
+    gap: 0.25rem;
+  }
+
+  .dashboard-shell app-dashboard-sidebar aside {
+    padding: 0.25rem 0.5rem;
+  }
+
+  .dashboard-shell app-dashboard-sidebar nav button {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+
+  .dashboard-alerts {
+    display: none;
+  }
+
+  .dashboard-content > section:first-child > div > p {
+    display: none;
+  }
+
+  .dashboard-content > section:first-child h1 {
+    margin-top: 0;
+    font-size: 1rem;
+    line-height: 1.5rem;
+  }
+
+  .dashboard-content > section:first-child > button {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+
+  .dashboard-content app-statistics-section article {
+    padding: 0.375rem 0.625rem;
+  }
+
+  .dashboard-content app-statistics-section article p:nth-child(3) {
+    display: none;
+  }
+
+  .dashboard-content app-statistics-section article p:first-child {
+    font-size: 0.625rem;
+  }
+
+  .dashboard-content app-statistics-section article p:nth-child(2) {
+    margin-top: 0.125rem;
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+  }
+
+  .dashboard-content > section:last-child > div:first-child {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+
+  .dashboard-content > section:last-child > div:first-child p {
+    display: none;
+  }
+
+  .dashboard-content > section:last-child > div:first-child button {
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .dashboard-content table th,
+  .dashboard-content table td {
+    padding-top: 0.375rem;
+    padding-bottom: 0.375rem;
+  }
+
+  .dashboard-content table button {
+    padding: 0.25rem 0.375rem;
+    font-size: 9px;
+  }
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button:focus-visible {
+  outline: 2px solid #7c3aed;
+  outline-offset: 2px;
+}

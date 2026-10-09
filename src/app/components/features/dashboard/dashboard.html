@@ -1,0 +1,158 @@
+<div class="dashboard-shell flex h-full min-h-0 flex-col overflow-hidden rounded-2xl bg-linear-to-br from-violet-50 via-slate-50 to-fuchsia-50 text-slate-800 shadow-2xl shadow-violet-950/20 sm:rounded-3xl">
+  <header class="z-20 flex h-17 shrink-0 items-center justify-between border-b border-violet-200/80 bg-linear-to-r from-white via-violet-50/80 to-fuchsia-50/80 px-4 sm:px-6">
+    <a routerLink="/dashboard" class="flex min-w-0 items-center gap-3" aria-label="Accueil de Gestion Bibliothèque">
+      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-violet-700 to-fuchsia-600 text-white shadow-md shadow-violet-700/20">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" class="h-5 w-5">
+          <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M8 6h8M8 10h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+        </svg>
+      </span>
+      <span class="min-w-0">
+        <span class="block truncate text-sm font-bold tracking-tight text-slate-950 sm:text-base">Gestion Bibliothèque</span>
+        <span class="hidden text-[11px] text-slate-500 sm:block">Espace d’administration</span>
+      </span>
+    </a>
+
+    <div class="flex items-center gap-2.5 sm:gap-4">
+      <div class="hidden text-right sm:block">
+        <p class="max-w-52 truncate text-xs font-semibold text-slate-800">{{ userEmail() }}</p>
+        <p class="text-[11px] text-slate-500">Administrateur</p>
+      </div>
+      <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-800 ring-2 ring-white" aria-hidden="true">
+        {{ userEmail()?.slice(0, 1)?.toUpperCase() || 'A' }}
+      </span>
+      <button type="button" (click)="signOut()" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-3.5">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+          <path d="M10 17l5-5-5-5m5 5H3m9-9h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+        <span class="hidden sm:inline">Déconnexion</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="flex min-h-0 flex-1 flex-col lg:flex-row">
+    <app-dashboard-sidebar
+      class="block shrink-0 border-b border-violet-200 bg-linear-to-b from-violet-100 via-violet-50 to-white lg:w-[220px] lg:border-b-0 lg:border-r"
+      [activeSection]="activeSection"
+      (sectionChange)="selectSection($event)"
+    />
+
+    <main class="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden bg-linear-to-br from-violet-500/70 via-slate-100 to-fuchsia-300/70 p-3 sm:p-4 lg:p-5">
+      <div class="dashboard-content mx-auto flex min-h-0 w-full max-w-[1500px] flex-1 flex-col gap-2.5 sm:gap-3">
+        <section class="flex shrink-0 items-center justify-between gap-3 rounded-2xl border border-violet-200/80 bg-linear-to-r from-white/95 via-violet-50/90 to-fuchsia-50/90 px-4 py-3 shadow-sm">
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-700">Tableau de bord · {{ todayLabel }}</p>
+            <h1 class="mt-1 truncate text-xl font-bold tracking-tight text-slate-950 sm:text-2xl">Bonjour, bienvenue</h1>
+          </div>
+          <button type="button" (click)="openCreateDialog(activeSection)" class="inline-flex shrink-0 items-center gap-2 rounded-xl bg-linear-to-r from-violet-700 to-fuchsia-600 px-3.5 py-2.5 text-xs font-semibold text-white shadow-lg shadow-violet-700/20 transition hover:-translate-y-0.5 hover:from-violet-800 hover:to-fuchsia-700 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 sm:px-4 sm:text-sm">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" class="h-4 w-4">
+              <path d="M12 5v14m-7-7h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <span>{{ activeSection === 'clients' ? 'Ajouter un client' : activeSection === 'authors' ? 'Ajouter un auteur' : activeSection === 'books' ? 'Ajouter un livre' : 'Ajouter un prêt' }}</span>
+          </button>
+        </section>
+
+        <app-statistics-section
+          class="block shrink-0"
+          [clientsCount]="clients.length"
+          [booksCount]="books.length"
+          [loansCount]="activeLoansCount"
+          [overdueLoansCount]="overdueLoansCount"
+        />
+
+        <section class="dashboard-alerts flex shrink-0 flex-wrap items-center gap-2 rounded-xl border border-violet-200 bg-linear-to-r from-violet-100 via-fuchsia-50 to-amber-50 px-3.5 py-2.5 shadow-sm" aria-label="Alertes de la bibliothèque">
+          <span class="mr-1 text-[11px] font-bold uppercase tracking-wider text-violet-900">À surveiller</span>
+          <button type="button" (click)="selectSection('loans')" class="inline-flex items-center gap-2 rounded-full bg-rose-50 px-3 py-1.5 text-[11px] font-semibold text-rose-800 transition hover:bg-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-400">
+            <span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
+            {{ overdueLoansCount }} prêt(s) en retard
+          </button>
+          <button type="button" (click)="selectSection('books')" class="inline-flex items-center gap-2 rounded-full bg-amber-50 px-3 py-1.5 text-[11px] font-semibold text-amber-900 transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400">
+            <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+            {{ lowStockBooksCount }} titre(s) à faible stock
+          </button>
+        </section>
+
+        <section class="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-violet-200 bg-linear-to-br from-white via-violet-50/80 to-slate-100 shadow-md shadow-violet-950/5">
+          <div class="flex shrink-0 flex-col justify-between gap-2.5 border-b border-violet-200 bg-linear-to-r from-violet-100 via-white to-fuchsia-100/70 px-4 py-3 sm:flex-row sm:items-center sm:px-5">
+            <div class="min-w-0">
+              <div class="flex items-center gap-2">
+                <h2 class="truncate text-sm font-bold text-slate-950 sm:text-base">
+                  {{ activeSection === 'clients' ? 'Gestion des clients' : activeSection === 'authors' ? 'Gestion des auteurs' : activeSection === 'books' ? 'Catalogue des livres' : 'Suivi des emprunts' }}
+                </h2>
+                <span class="rounded-full bg-violet-50 px-2 py-0.5 text-[10px] font-bold text-violet-800 ring-1 ring-inset ring-violet-100">
+                  {{ activeSection === 'clients' ? clients.length : activeSection === 'authors' ? authors.length : activeSection === 'books' ? books.length : loans.length }}
+                </span>
+              </div>
+              <p class="mt-0.5 hidden text-[11px] text-slate-500 sm:block">
+                {{ activeSection === 'clients' ? 'Consultez et gérez les comptes de vos lecteurs.' : activeSection === 'authors' ? 'Consultez et gérez les auteurs de votre catalogue.' : activeSection === 'books' ? 'Gérez le catalogue et la disponibilité des ouvrages.' : 'Suivez les prêts, retards et retours.' }}
+              </p>
+            </div>
+            <div class="flex shrink-0 items-center gap-1 rounded-xl border border-violet-200 bg-violet-100/80 p-1" role="group" aria-label="Choisir la liste">
+              <button type="button" (click)="selectSection('clients')" [attr.aria-pressed]="activeSection === 'clients'" [class]="sectionTabClass('clients')">Clients</button>
+              <button type="button" (click)="selectSection('authors')" [attr.aria-pressed]="activeSection === 'authors'" [class]="sectionTabClass('authors')">Auteurs</button>
+              <button type="button" (click)="selectSection('books')" [attr.aria-pressed]="activeSection === 'books'" [class]="sectionTabClass('books')">Livres</button>
+              <button type="button" (click)="selectSection('loans')" [attr.aria-pressed]="activeSection === 'loans'" [class]="sectionTabClass('loans')">Prêts</button>
+            </div>
+          </div>
+
+          @if (activeSection === 'clients') {
+            <app-user-table class="block min-h-0 flex-1 overflow-auto" [clients]="clients" (action)="handleClientAction($event)" />
+          } @else if (activeSection === 'authors') {
+            <app-author-table
+              class="block min-h-0 flex-1 overflow-auto"
+              [authors]="authors"
+              (action)="handleAuthorAction($event)"
+            />
+          } @else if (activeSection === 'books') {
+            <app-book-table
+              class="block min-h-0 flex-1 overflow-auto"
+              [books]="books"
+              (action)="handleBookAction($event)"
+            />
+          } @else {
+            <app-loan-table
+              class="block min-h-0 flex-1 overflow-auto"
+              [loans]="loans"
+              [clients]="clients"
+              [books]="books"
+              (action)="handleLoanAction($event)"
+            />
+          }
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+
+@if (dialogMode) {
+  <app-record-dialog
+    [mode]="dialogMode"
+    [title]="dialogTitle"
+    [description]="dialogDescription"
+    [fields]="dialogFields"
+    [values]="dialogValues"
+    (closed)="closeDialog()"
+    (saved)="saveRecord($event)"
+    (confirmed)="confirmDelete()"
+  />
+}
+
+@if (toastMessage) {
+  <div role="status" class="fixed bottom-5 right-5 z-50 max-w-sm rounded-xl bg-slate-950 px-5 py-3 text-sm font-medium text-white shadow-xl">
+    {{ toastMessage }}
+  </div>
+}
+
+@if (logoutConfirmation) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4" (click)="cancelSignOut()">
+    <section role="alertdialog" aria-modal="true" aria-labelledby="signout-title" class="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" (click)="$event.stopPropagation()">
+      <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-100 text-xl font-bold text-violet-800" aria-hidden="true">?</div>
+      <h2 id="signout-title" class="mt-4 text-lg font-bold text-slate-950">Confirmer la déconnexion</h2>
+      <p class="mt-2 text-sm leading-6 text-slate-600">Voulez-vous vraiment déconnecter le gérant de son espace de gestion ?</p>
+      <div class="mt-6 flex justify-end gap-3">
+        <button type="button" (click)="cancelSignOut()" class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">Annuler</button>
+        <button type="button" (click)="confirmSignOut()" class="rounded-lg bg-rose-700 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2">Se déconnecter</button>
+      </div>
+    </section>
+  </div>
+}

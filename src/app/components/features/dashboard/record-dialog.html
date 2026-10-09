@@ -1,0 +1,138 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4"
+  (click)="closed.emit()"
+  (keydown.escape)="closed.emit()"
+>
+  <section
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="title"
+    class="max-h-[90dvh] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white shadow-2xl"
+    (click)="$event.stopPropagation()"
+  >
+    <header class="flex items-start justify-between border-b border-slate-200 px-6 py-5">
+      <div>
+        <h2 class="text-lg font-bold text-slate-900">{{ title }}</h2>
+        @if (description) {
+          <p class="mt-1 text-sm text-slate-600">{{ description }}</p>
+        }
+      </div>
+      <button
+        type="button"
+        aria-label="Fermer"
+        (click)="closed.emit()"
+        class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+      >
+        <span aria-hidden="true">×</span>
+      </button>
+    </header>
+
+    @if (mode === 'confirm') {
+      <div class="px-6 py-6">
+        <p class="text-sm leading-6 text-slate-700">{{ description }}</p>
+        <div class="mt-6 flex justify-end gap-3">
+          <button
+            type="button"
+            (click)="closed.emit()"
+            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="button"
+            (click)="confirmed.emit()"
+            class="rounded-lg bg-rose-700 px-4 py-2 text-sm font-semibold text-white hover:bg-rose-800 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2"
+          >
+            Confirmer la suppression
+          </button>
+        </div>
+      </div>
+    } @else if (mode === 'details') {
+      <div class="grid gap-5 px-6 py-6 sm:grid-cols-2">
+        @for (field of fields; track field.key) {
+          <div [class]="field.type === 'textarea' || field.type === 'url' ? 'sm:col-span-2' : ''">
+            <p class="text-xs font-semibold uppercase tracking-wide text-slate-500">{{ field.label }}</p>
+            @if (field.key === 'image' && values[field.key]) {
+              <img [src]="values[field.key]" [alt]="values['title'] || 'Couverture du livre'" class="mt-2 max-h-52 rounded-lg object-contain" />
+            } @else {
+              <p class="mt-1 break-words text-sm text-slate-900">{{ fieldValue(field) || '—' }}</p>
+            }
+          </div>
+        }
+      </div>
+      <footer class="flex justify-end border-t border-slate-200 px-6 py-4">
+        <button
+          type="button"
+          (click)="closed.emit()"
+          class="rounded-lg bg-violet-700 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-800"
+        >
+          Fermer
+        </button>
+      </footer>
+    } @else {
+      <form #recordForm="ngForm" (ngSubmit)="submit(recordForm.valid)" class="px-6 py-6">
+        <div class="grid gap-4 sm:grid-cols-2">
+          @for (field of fields; track field.key) {
+            <div [class]="field.type === 'textarea' || field.type === 'url' ? 'sm:col-span-2' : ''">
+              <label [for]="'record-' + field.key" class="mb-1.5 block text-sm font-medium text-slate-700">
+                {{ field.label }}
+              </label>
+              @if (field.type === 'textarea') {
+                <textarea
+                  [id]="'record-' + field.key"
+                  [name]="field.key"
+                  [(ngModel)]="draft[field.key]"
+                  (input)="updateDraft(field.key, $event)"
+                  [required]="field.required ?? false"
+                  rows="4"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
+                ></textarea>
+              } @else if (field.type === 'select') {
+                <select
+                  [id]="'record-' + field.key"
+                  [name]="field.key"
+                  [(ngModel)]="draft[field.key]"
+                  (change)="updateDraft(field.key, $event)"
+                  [required]="field.required ?? false"
+                  class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100"
+                >
+                  @for (option of field.options ?? []; track optionValue(option)) {
+                    <option [value]="optionValue(option)">{{ optionLabel(option) }}</option>
+                  }
+                </select>
+              } @else {
+                <input
+                  [id]="'record-' + field.key"
+                  [name]="field.key"
+                  [type]="field.type"
+                  [(ngModel)]="draft[field.key]"
+                  (input)="updateDraft(field.key, $event)"
+                  [required]="field.required ?? false"
+                  [min]="field.type === 'number' ? 0 : null"
+                  [readonly]="field.editable === false"
+                  class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:border-violet-600 focus:ring-2 focus:ring-violet-100 read-only:bg-slate-100"
+                />
+              }
+            </div>
+          }
+        </div>
+        <footer class="mt-6 flex justify-end gap-3 border-t border-slate-200 pt-4">
+          <button
+            type="button"
+            (click)="closed.emit()"
+            class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+          >
+            Annuler
+          </button>
+          <button
+            type="submit"
+            [disabled]="recordForm.invalid"
+            class="rounded-lg bg-violet-700 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {{ mode === 'create' ? 'Ajouter' : 'Enregistrer' }}
+          </button>
+        </footer>
+      </form>
+    }
+  </section>
+</div>
